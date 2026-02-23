@@ -190,6 +190,8 @@ export function HomePage() {
   const opponentJoined = useGameStore((s) => s.opponentJoined);
   const lastMoveAt = useGameStore((s) => s.lastMoveAt);
   const createdAt = useGameStore((s) => s.createdAt);
+  const currentPlayer = useGameStore((s) => s.currentPlayer);
+  const playerColor = useGameStore((s) => s.playerColor);
 
   const setLocalMode = useGameStore((s) => s.setLocalMode);
   const createOnlineGame = useGameStore((s) => s.createOnlineGame);
@@ -364,20 +366,31 @@ export function HomePage() {
           className="w-full flex justify-center"
         >
           {gameMode === 'online' && gameId ? (
-            <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-md w-full max-w-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col text-left">
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-md w-full max-w-sm border border-gray-200 dark:border-gray-700 relative">
+              <div className="flex-1 flex flex-col items-center justify-center text-center">
                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   Game ID: {gameId}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {lastMoveAt
-                    ? `Last move: ${isToday(new Date(lastMoveAt))
-                      ? format(new Date(lastMoveAt), 'HH:mm')
-                      : format(new Date(lastMoveAt), 'MMM d, HH:mm')}`
-                    : 'No moves yet'}
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {lastMoveAt ? (
+                    <>
+                      Last move{' '}
+                      {isToday(new Date(lastMoveAt))
+                        ? format(new Date(lastMoveAt), 'HH:mm')
+                        : format(new Date(lastMoveAt), 'MMM d, HH:mm')}{' '}
+                      by <span className={currentPlayer === Player.BLUE ? 'text-player-red font-medium' : 'text-player-blue font-medium'}>{currentPlayer === Player.BLUE ? 'Red' : 'Blue'}</span>
+                      {(() => {
+                        const lastMovedByMe = (currentPlayer === Player.BLUE && playerColor === Player.RED) ||
+                          (currentPlayer === Player.RED && playerColor === Player.BLUE);
+                        return lastMovedByMe ? ' (You)' : '';
+                      })()}
+                    </>
+                  ) : (
+                    'No moves yet'
+                  )}
                 </span>
               </div>
-              <div>
+              <div className="absolute right-4 flex items-center h-full gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
