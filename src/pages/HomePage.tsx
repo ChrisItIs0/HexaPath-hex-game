@@ -379,18 +379,15 @@ export function HomePage() {
                       return 'First move';
                     }
                     if (lastMoveAt) {
+                      const lastMovePlayer = gameState === 'won' ? currentPlayer : (currentPlayer === Player.BLUE ? Player.RED : Player.BLUE);
                       return (
                         <>
                           Last move{' '}
                           {isToday(new Date(lastMoveAt))
                             ? format(new Date(lastMoveAt), 'HH:mm')
                             : format(new Date(lastMoveAt), 'MMM d, HH:mm')}{' '}
-                          by <span className={currentPlayer === Player.BLUE ? 'text-player-red font-medium' : 'text-player-blue font-medium'}>{currentPlayer === Player.BLUE ? 'Red' : 'Blue'}</span>
-                          {(() => {
-                            const lastMovedByMe = (currentPlayer === Player.BLUE && playerColor === Player.RED) ||
-                              (currentPlayer === Player.RED && playerColor === Player.BLUE);
-                            return lastMovedByMe ? ' (You)' : '';
-                          })()}
+                          by <span className={lastMovePlayer === Player.RED ? 'text-player-red font-medium' : 'text-player-blue font-medium'}>{lastMovePlayer === Player.RED ? 'Red' : 'Blue'}</span>
+                          {lastMovePlayer === playerColor ? ' (You)' : ''}
                         </>
                       );
                     }
