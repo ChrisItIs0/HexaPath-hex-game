@@ -99,6 +99,11 @@ const GameBoard = () => {
     }))
   );
 
+  const gameMode = useGameStore((s) => s.gameMode);
+  const playerColor = useGameStore((s) => s.playerColor);
+
+  const hoverPlayer = gameMode === 'online' && playerColor ? playerColor : currentPlayer;
+
   const winningPathSet = new Set(
     winningPath.map((p) => `${p.row},${p.col}`)
   );
@@ -154,6 +159,7 @@ const GameBoard = () => {
                     col={c}
                     player={player}
                     currentPlayer={currentPlayer}
+                    hoverPlayer={hoverPlayer}
                     isWinning={winningPathSet.has(`${r},${c}`)}
                     isGameOver={gameState === 'won'}
                     onClick={makeMove}
@@ -373,7 +379,23 @@ export function HomePage() {
             HexaPath
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Connect your sides to win!
+            {gameMode === 'online' && playerColor ? (
+              <>
+                Connect the{' '}
+                <span
+                  className={
+                    playerColor === Player.BLUE
+                      ? 'text-player-blue font-bold'
+                      : 'text-player-red font-bold'
+                  }
+                >
+                  {playerColor === Player.BLUE ? 'blue' : 'orange'}
+                </span>{' '}
+                sides to win!
+              </>
+            ) : (
+              'Connect your sides to win!'
+            )}
           </p>
         </motion.header>
 
@@ -398,15 +420,16 @@ export function HomePage() {
         >
           {gameMode === 'online' && gameId ? (
             <div className={cn(
-              "flex items-center justify-between rounded-[2rem] px-6 py-4 shadow-lg w-full max-w-sm border-2 relative transition-colors duration-300",
+              "flex items-center justify-between rounded-full px-6 py-3 shadow-lg w-full max-w-sm border-2 relative transition-colors duration-300 overflow-hidden",
               playerColor === Player.BLUE
-                ? "bg-player-blue text-white border-player-blue shadow-player-blue/20"
-                : "bg-player-red text-white border-player-red shadow-player-red/20"
+                ? "bg-transparent border-player-blue shadow-player-blue/20"
+                : "bg-transparent border-player-red shadow-player-red/20"
             )}>
-              <div className="flex-1 flex flex-col items-center justify-center text-center">
+
+              <div className="flex-1 flex flex-col items-center justify-between text-center relative z-10 h-full py-0.5">
                 {gameState === 'playing' && (
                   <motion.span
-                    className="text-2xl font-bold tracking-tight mb-1 inline-block"
+                    className="text-xl font-bold tracking-tight inline-block leading-[1.1rem]"
                     animate={shouldWiggle ? { rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1.1, 1.1, 1] } : {}}
                     transition={{ duration: wiggleDuration }}
                   >
@@ -414,11 +437,11 @@ export function HomePage() {
                   </motion.span>
                 )}
                 {gameState === 'won' && (
-                  <span className="text-2xl font-bold tracking-tight mb-1">
+                  <span className="text-xl font-bold tracking-tight">
                     {winner === playerColor ? 'You Won!' : 'Opponent Won'}
                   </span>
                 )}
-                <span className="text-sm font-medium opacity-90">
+                <span className="text-sm font-medium opacity-90 leading-[1.6rem]">
                   {(() => {
                     const hasMoves = board.some(row => row.some(cell => cell !== Player.EMPTY));
                     if (!hasMoves) {
@@ -440,14 +463,14 @@ export function HomePage() {
                     return 'First move';
                   })()}
                 </span>
-                <span className="text-xs opacity-75 mt-0.5">
+                <span className="text-xs opacity-75">
                   Game ID: {gameId}
                 </span>
               </div>
-              <div className="absolute right-4 flex items-center h-full gap-2">
+              <div className="absolute right-4 flex items-center h-full gap-2 z-10">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-white hover:bg-white/20 hover:text-white">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800">
                       <MoreVertical className="h-5 w-5" />
                       <span className="sr-only">More options</span>
                     </Button>
