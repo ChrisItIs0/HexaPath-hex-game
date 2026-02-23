@@ -192,6 +192,7 @@ export function HomePage() {
   const createdAt = useGameStore((s) => s.createdAt);
   const currentPlayer = useGameStore((s) => s.currentPlayer);
   const playerColor = useGameStore((s) => s.playerColor);
+  const board = useGameStore((s) => s.board);
 
   const setLocalMode = useGameStore((s) => s.setLocalMode);
   const createOnlineGame = useGameStore((s) => s.createOnlineGame);
@@ -372,22 +373,29 @@ export function HomePage() {
                   Game ID: {gameId}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  {lastMoveAt ? (
-                    <>
-                      Last move{' '}
-                      {isToday(new Date(lastMoveAt))
-                        ? format(new Date(lastMoveAt), 'HH:mm')
-                        : format(new Date(lastMoveAt), 'MMM d, HH:mm')}{' '}
-                      by <span className={currentPlayer === Player.BLUE ? 'text-player-red font-medium' : 'text-player-blue font-medium'}>{currentPlayer === Player.BLUE ? 'Red' : 'Blue'}</span>
-                      {(() => {
-                        const lastMovedByMe = (currentPlayer === Player.BLUE && playerColor === Player.RED) ||
-                          (currentPlayer === Player.RED && playerColor === Player.BLUE);
-                        return lastMovedByMe ? ' (You)' : '';
-                      })()}
-                    </>
-                  ) : (
-                    'No moves yet'
-                  )}
+                  {(() => {
+                    const hasMoves = board.some(row => row.some(cell => cell !== Player.EMPTY));
+                    if (!hasMoves) {
+                      return 'First move';
+                    }
+                    if (lastMoveAt) {
+                      return (
+                        <>
+                          Last move{' '}
+                          {isToday(new Date(lastMoveAt))
+                            ? format(new Date(lastMoveAt), 'HH:mm')
+                            : format(new Date(lastMoveAt), 'MMM d, HH:mm')}{' '}
+                          by <span className={currentPlayer === Player.BLUE ? 'text-player-red font-medium' : 'text-player-blue font-medium'}>{currentPlayer === Player.BLUE ? 'Red' : 'Blue'}</span>
+                          {(() => {
+                            const lastMovedByMe = (currentPlayer === Player.BLUE && playerColor === Player.RED) ||
+                              (currentPlayer === Player.RED && playerColor === Player.BLUE);
+                            return lastMovedByMe ? ' (You)' : '';
+                          })()}
+                        </>
+                      );
+                    }
+                    return 'First move';
+                  })()}
                 </span>
               </div>
               <div className="absolute right-4 flex items-center h-full gap-2">
