@@ -7,6 +7,7 @@ interface HexagonProps {
   col: number;
   player: Player;
   currentPlayer: Player;
+  hoverPlayer?: Player;
   isWinning: boolean;
   isGameOver: boolean;
   onClick: (row: number, col: number) => void;
@@ -54,6 +55,7 @@ export const Hexagon = React.memo(
     col,
     player,
     currentPlayer,
+    hoverPlayer,
     isWinning,
     isGameOver,
     onClick,
@@ -114,7 +116,7 @@ export const Hexagon = React.memo(
           className={cn(
             'stroke-black/20 dark:stroke-white/30 stroke-2 transition-colors duration-200',
             playerColors[player],
-            isClickable && hoverPlayerColors[currentPlayer],
+            isClickable && hoverPlayerColors[hoverPlayer || currentPlayer],
             isWinning && 'animate-win-pulse'
           )}
         />
