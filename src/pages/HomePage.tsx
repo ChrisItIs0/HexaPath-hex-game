@@ -425,30 +425,11 @@ export function HomePage() {
                 ? "bg-transparent border-player-blue shadow-player-blue/20"
                 : "bg-transparent border-player-red shadow-player-red/20"
             )}>
-              {gameState === 'playing' && (
-                <motion.div
-                  className={cn(
-                    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-0",
-                    playerColor === Player.BLUE ? "border-player-blue" : "border-player-red"
-                  )}
-                  initial={{ width: 0, height: 0, borderWidth: 0 }}
-                  animate={{
-                    width: ["0px", "0px", "800px"],
-                    height: ["0px", "0px", "800px"],
-                    borderWidth: ["0px", "400px", "0px"]
-                  }}
-                  transition={{
-                    duration: 1.2,
-                    times: [0, 0.3, 1],
-                    ease: ["easeIn", "easeOut"],
-                    delay: 0.6
-                  }}
-                />
-              )}
+
               <div className="flex-1 flex flex-col items-center justify-between text-center relative z-10 h-full py-0.5">
                 {gameState === 'playing' && (
                   <motion.span
-                    className="text-xl font-bold tracking-tight inline-block"
+                    className="text-xl font-bold tracking-tight inline-block leading-[1.1rem]"
                     animate={shouldWiggle ? { rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1.1, 1.1, 1] } : {}}
                     transition={{ duration: wiggleDuration }}
                   >
@@ -460,7 +441,7 @@ export function HomePage() {
                     {winner === playerColor ? 'You Won!' : 'Opponent Won'}
                   </span>
                 )}
-                <span className="text-sm font-medium opacity-90">
+                <span className="text-sm font-medium opacity-90 leading-[1.6rem]">
                   {(() => {
                     const hasMoves = board.some(row => row.some(cell => cell !== Player.EMPTY));
                     if (!hasMoves) {
