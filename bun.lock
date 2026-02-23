@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "v1-hexapath-95a15a8b-efce-43b1-98ab-cb450743a7a8",

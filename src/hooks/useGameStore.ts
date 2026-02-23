@@ -22,6 +22,8 @@ interface GameStore {
   gameState: GameState | 'waiting';
   winner: Player | null;
   winningPath: Position[];
+  lastMoveAt: string | null;
+  createdAt: string | null;
 
   gameMode: GameMode;
   gameId: string | null;
@@ -49,6 +51,8 @@ const initialState = {
   gameState: 'playing' as GameState | 'waiting',
   winner: null,
   winningPath: [],
+  lastMoveAt: null,
+  createdAt: null,
   gameMode: 'local' as GameMode,
   gameId: null,
   playerId: null,
@@ -103,6 +107,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             gameState: game.gameState,
             winner: game.winner,
             winningPath: game.winningPath,
+            lastMoveAt: game.lastMoveAt,
+            createdAt: game.createdAt,
             isYourTurn: game.currentPlayer === get().playerColor,
           });
         }
@@ -172,6 +178,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             gameState: msg.gameState.gameState,
             winner: msg.gameState.winner,
             winningPath: msg.gameState.winningPath,
+            lastMoveAt: msg.gameState.lastMoveAt,
+            createdAt: msg.gameState.createdAt,
             isYourTurn: msg.isYourTurn,
             opponentJoined: !!msg.gameState.player2Id,
           });
@@ -286,6 +294,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
           gameState: game.gameState,
           winner: game.winner,
           winningPath: game.winningPath,
+          lastMoveAt: game.lastMoveAt,
+          createdAt: game.createdAt,
           isYourTurn: game.currentPlayer === playerColor,
           opponentJoined: true,
           wsConnected: false,
@@ -326,6 +336,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
           gameState: game.gameState,
           winner: game.winner,
           winningPath: game.winningPath,
+          lastMoveAt: game.lastMoveAt,
+          createdAt: game.createdAt,
           isYourTurn,
           opponentJoined: !!game.player2Id,
           wsConnected: false,
@@ -362,6 +374,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
           gameState: game.gameState,
           winner: game.winner,
           winningPath: game.winningPath,
+          lastMoveAt: game.lastMoveAt,
+          createdAt: game.createdAt,
           isYourTurn,
           opponentJoined: !!game.player2Id,
         });

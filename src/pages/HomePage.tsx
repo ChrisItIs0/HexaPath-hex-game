@@ -11,6 +11,14 @@ import { ShareLink } from '@/components/ShareLink';
 import { cn } from '@/lib/utils';
 import { getOrCreateLocalPlayerId } from '@/lib/playerIdentity';
 import { useShallow } from 'zustand/react/shallow';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical } from 'lucide-react';
+import { isToday, format } from 'date-fns';
 
 declare global {
   interface Window {
@@ -180,6 +188,8 @@ export function HomePage() {
   const shareLink = useGameStore((s) => s.shareLink);
   const isYourTurn = useGameStore((s) => s.isYourTurn);
   const opponentJoined = useGameStore((s) => s.opponentJoined);
+  const lastMoveAt = useGameStore((s) => s.lastMoveAt);
+  const createdAt = useGameStore((s) => s.createdAt);
 
   const setLocalMode = useGameStore((s) => s.setLocalMode);
   const createOnlineGame = useGameStore((s) => s.createOnlineGame);
@@ -351,19 +361,55 @@ export function HomePage() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, type: 'spring', delay: 0.2 }}
+          className="w-full flex justify-center"
         >
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              onClick={handleNewGame}
-              size="lg"
-              className="font-semibold text-lg px-8 py-6 bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-lg"
-            >
-              New Game
-            </Button>
-            <Button asChild variant="outline" className="px-6 py-6 font-semibold">
-              <Link to="/games">My Games</Link>
-            </Button>
-          </div>
+          {gameMode === 'online' && gameId ? (
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-md w-full max-w-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col text-left">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Game ID: {gameId}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {lastMoveAt
+                    ? `Last move: ${isToday(new Date(lastMoveAt))
+                      ? format(new Date(lastMoveAt), 'HH:mm')
+                      : format(new Date(lastMoveAt), 'MMM d, HH:mm')}`
+                    : 'No moves yet'}
+                </span>
+              </div>
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <MoreVertical className="h-5 w-5" />
+                      <span className="sr-only">More options</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={handleNewGame} className="cursor-pointer font-medium">
+                      New Game
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="cursor-pointer font-medium">
+                      <Link to="/games" className="w-full">My Games</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={handleNewGame}
+                size="lg"
+                className="font-semibold text-lg px-8 py-6 bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-lg"
+              >
+                New Game
+              </Button>
+              <Button asChild variant="outline" className="px-6 py-6 font-semibold">
+                <Link to="/games">My Games</Link>
+              </Button>
+            </div>
+          )}
         </motion.div>
       </div>
 
