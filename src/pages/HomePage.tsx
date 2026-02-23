@@ -11,6 +11,8 @@ import { ShareLink } from '@/components/ShareLink';
 import { cn } from '@/lib/utils';
 import { getOrCreateLocalPlayerId } from '@/lib/playerIdentity';
 import { useShallow } from 'zustand/react/shallow';
+import { SettingsModal } from '@/components/SettingsModal';
+import { useSettingsStore } from '@/hooks/useSettingsStore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,6 +103,7 @@ const GameBoard = () => {
 
   const gameMode = useGameStore((s) => s.gameMode);
   const playerColor = useGameStore((s) => s.playerColor);
+  const { boardSize, showCoordinates } = useSettingsStore();
 
   const hoverPlayer = gameMode === 'online' && playerColor ? playerColor : currentPlayer;
 
@@ -108,7 +111,7 @@ const GameBoard = () => {
     winningPath.map((p) => `${p.row},${p.col}`)
   );
 
-  const hexSize = 36;
+  const hexSize = boardSize === 'small' ? 24 : boardSize === 'large' ? 48 : 36;
   const scale = hexSize / 50; // Hexagon component is 100x86.6
   const scaledHexWidth = 100 * scale;
   const scaledHexHeight = 86.6 * scale;
@@ -129,7 +132,7 @@ const GameBoard = () => {
 
   const boardContentWidth = maxX - minX + scaledHexWidth;
   const boardContentHeight = maxY - minY + scaledHexHeight;
-  const padding = 20; // Padding for shadow and hover effects
+  const padding = 20 + (showCoordinates ? hexSize * 1.2 : 0); // Padding for shadow and hover effects + coords
   const viewBoxX = minX - padding;
   const viewBoxY = minY - padding;
   const viewBoxWidth = boardContentWidth + padding * 2;
@@ -168,6 +171,52 @@ const GameBoard = () => {
               );
             })
           )}
+          {showCoordinates && (
+            <g className="fill-gray-500 dark:fill-gray-400 font-bold pointer-events-none select-none" style={{ fontSize: `${hexSize * 0.4}px` }}>
+              {/* Letters A-K along the top-left edge (r=0) */}
+              {Array.from({ length: BOARD_SIZE }).map((_, c) => {
+                const x = (c - 0) * (scaledHexWidth * 0.75);
+                const y = (c + 0) * (scaledHexHeight * 0.5);
+                return (
+                  <text key={`letter-tl-${c}`} x={x} y={y - scaledHexHeight * 0.8} textAnchor="middle" dominantBaseline="middle">
+                    {String.fromCharCode(65 + c)}
+                  </text>
+                );
+              })}
+              {/* Letters A-K along the bottom-right edge (r=BOARD_SIZE-1) */}
+              {Array.from({ length: BOARD_SIZE }).map((_, c) => {
+                const r = BOARD_SIZE - 1;
+                const x = (c - r) * (scaledHexWidth * 0.75);
+                const y = (c + r) * (scaledHexHeight * 0.5);
+                return (
+                  <text key={`letter-br-${c}`} x={x} y={y + scaledHexHeight * 0.8} textAnchor="middle" dominantBaseline="middle">
+                    {String.fromCharCode(65 + c)}
+                  </text>
+                );
+              })}
+              {/* Numbers 1-11 along the left edge (c=0) */}
+              {Array.from({ length: BOARD_SIZE }).map((_, r) => {
+                const x = (0 - r) * (scaledHexWidth * 0.75);
+                const y = (0 + r) * (scaledHexHeight * 0.5);
+                return (
+                  <text key={`num-l-${r}`} x={x - scaledHexWidth * 0.65} y={y} textAnchor="middle" dominantBaseline="middle">
+                    {r + 1}
+                  </text>
+                );
+              })}
+              {/* Numbers 1-11 along the right edge (c=BOARD_SIZE-1) */}
+              {Array.from({ length: BOARD_SIZE }).map((_, r) => {
+                const c = BOARD_SIZE - 1;
+                const x = (c - r) * (scaledHexWidth * 0.75);
+                const y = (c + r) * (scaledHexHeight * 0.5);
+                return (
+                  <text key={`num-r-${r}`} x={x + scaledHexWidth * 0.65} y={y} textAnchor="middle" dominantBaseline="middle">
+                    {r + 1}
+                  </text>
+                );
+              })}
+            </g>
+          )}
         </g>
       </svg>
     </div>
@@ -176,6 +225,7 @@ const GameBoard = () => {
 
 export function HomePage() {
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [shouldWiggle, setShouldWiggle] = useState(false);
   const [wiggleDuration, setWiggleDuration] = useState(0.4);
   const hasJoinedRef = useRef(false);
@@ -476,6 +526,9 @@ export function HomePage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setShowSettings(true)} className="cursor-pointer font-medium">
+                      Settings
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleNewGame} className="cursor-pointer font-medium">
                       New Game
                     </DropdownMenuItem>
@@ -509,6 +562,11 @@ export function HomePage() {
         onLocalGame={handleLocalGame}
         onCreateOnline={handleCreateOnline}
         onJoinOnline={handleJoinOnline}
+      />
+
+      <SettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
       />
     </main>
   );
