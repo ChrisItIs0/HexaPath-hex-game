@@ -35,15 +35,19 @@ const GameStatus = () => {
   const isYourTurn = useGameStore((s) => s.isYourTurn);
   const opponentJoined = useGameStore((s) => s.opponentJoined);
 
-  const playerText = currentPlayer === Player.BLUE ? 'Blue' : 'Red';
+  const playerText = currentPlayer === Player.BLUE ? 'Blue' : 'Orange';
   const playerColorClass =
     currentPlayer === Player.BLUE ? 'text-player-blue' : 'text-player-red';
-  const winnerText = winner === Player.BLUE ? 'Blue' : 'Red';
+  const winnerText = winner === Player.BLUE ? 'Blue' : 'Orange';
   const winnerColorClass =
     winner === Player.BLUE ? 'text-player-blue' : 'text-player-red';
 
-  const yourColorText = playerColor === Player.BLUE ? 'Blue' : 'Red';
+  const yourColorText = playerColor === Player.BLUE ? 'Blue' : 'Orange';
   const yourColorClass = playerColor === Player.BLUE ? 'text-player-blue' : 'text-player-red';
+
+  if (gameMode === 'online' && gameState === 'playing') {
+    return null;
+  }
 
   return (
     <div className="h-16 flex items-center justify-center">
@@ -66,21 +70,7 @@ const GameStatus = () => {
             exit={{ y: 20, opacity: 0 }}
             className="text-2xl md:text-3xl font-semibold"
           >
-            {gameMode === 'online' ? (
-              <>
-                <span className={cn(yourColorClass, 'font-bold')}>You are {yourColorText}</span>
-                {' • '}
-                {isYourTurn ? (
-                  <span className="text-green-600 dark:text-green-400">Your Turn</span>
-                ) : (
-                  <span className="text-gray-500">Opponent's Turn</span>
-                )}
-              </>
-            ) : (
-              <>
-                <span className={cn(playerColorClass, 'font-bold')}>{playerText}'s</span> Turn
-              </>
-            )}
+            <span className={cn(playerColorClass, 'font-bold')}>{playerText}'s</span> turn
           </motion.h2>
         ) : (
           <motion.h2
@@ -180,6 +170,8 @@ const GameBoard = () => {
 
 export function HomePage() {
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [shouldWiggle, setShouldWiggle] = useState(false);
+  const [wiggleDuration, setWiggleDuration] = useState(0.4);
   const hasJoinedRef = useRef(false);
   const gameState = useGameStore((s) => s.gameState);
   const gameMode = useGameStore((s) => s.gameMode);
@@ -330,6 +322,44 @@ export function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (gameState !== 'playing' || !isYourTurn) {
+      setShouldWiggle(false);
+      setWiggleDuration(0.4);
+      return;
+    }
+
+    let currentDuration = 0.4;
+
+    // We update state without triggering re-render cascades
+    const triggerWiggle = () => {
+      setWiggleDuration(currentDuration);
+      setShouldWiggle(true);
+      // Reset after animation (using currentDuration)
+      setTimeout(() => setShouldWiggle(false), currentDuration * 1000 + 100);
+      // Increase subsequent duration by 10%
+      currentDuration *= 1.1;
+    };
+
+    let wigglingInterval: NodeJS.Timeout;
+
+    // Wait 15 seconds for the first wiggle
+    const initialDelay = setTimeout(() => {
+      triggerWiggle();
+
+      // Then wiggle every 10 seconds
+      wigglingInterval = setInterval(() => {
+        triggerWiggle();
+      }, 10000);
+    }, 10000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      clearInterval(wigglingInterval);
+      setShouldWiggle(false);
+    };
+  }, [isYourTurn, gameState]);
+
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-5xl mx-auto flex flex-col items-center space-y-6 md:space-y-8">
@@ -367,12 +397,28 @@ export function HomePage() {
           className="w-full flex justify-center"
         >
           {gameMode === 'online' && gameId ? (
-            <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-md w-full max-w-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className={cn(
+              "flex items-center justify-between rounded-[2rem] px-6 py-4 shadow-lg w-full max-w-sm border-2 relative transition-colors duration-300",
+              playerColor === Player.BLUE
+                ? "bg-player-blue text-white border-player-blue shadow-player-blue/20"
+                : "bg-player-red text-white border-player-red shadow-player-red/20"
+            )}>
               <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  Game ID: {gameId}
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {gameState === 'playing' && (
+                  <motion.span
+                    className="text-2xl font-bold tracking-tight mb-1 inline-block"
+                    animate={shouldWiggle ? { rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1.1, 1.1, 1] } : {}}
+                    transition={{ duration: wiggleDuration }}
+                  >
+                    {isYourTurn ? 'Your turn' : `${currentPlayer === Player.BLUE ? "Blue's" : "Orange's"} turn`}
+                  </motion.span>
+                )}
+                {gameState === 'won' && (
+                  <span className="text-2xl font-bold tracking-tight mb-1">
+                    {winner === playerColor ? 'You Won!' : 'Opponent Won'}
+                  </span>
+                )}
+                <span className="text-sm font-medium opacity-90">
                   {(() => {
                     const hasMoves = board.some(row => row.some(cell => cell !== Player.EMPTY));
                     if (!hasMoves) {
@@ -386,7 +432,7 @@ export function HomePage() {
                           {isToday(new Date(lastMoveAt))
                             ? format(new Date(lastMoveAt), 'HH:mm')
                             : format(new Date(lastMoveAt), 'MMM d, HH:mm')}{' '}
-                          by <span className={lastMovePlayer === Player.RED ? 'text-player-red font-medium' : 'text-player-blue font-medium'}>{lastMovePlayer === Player.RED ? 'Red' : 'Blue'}</span>
+                          by <span className="font-bold drop-shadow-sm">{lastMovePlayer === Player.RED ? 'Orange' : 'Blue'}</span>
                           {lastMovePlayer === playerColor ? ' (You)' : ''}
                         </>
                       );
@@ -394,11 +440,14 @@ export function HomePage() {
                     return 'First move';
                   })()}
                 </span>
+                <span className="text-xs opacity-75 mt-0.5">
+                  Game ID: {gameId}
+                </span>
               </div>
               <div className="absolute right-4 flex items-center h-full gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-white hover:bg-white/20 hover:text-white">
                       <MoreVertical className="h-5 w-5" />
                       <span className="sr-only">More options</span>
                     </Button>
