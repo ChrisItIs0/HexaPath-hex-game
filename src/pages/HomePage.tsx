@@ -461,7 +461,7 @@ export function HomePage() {
         >
           {gameMode === 'online' && gameId ? (
             <div className={cn(
-              "flex items-center justify-between rounded-full px-6 py-3 shadow-lg w-full max-w-sm border-2 relative transition-colors duration-300 overflow-hidden",
+              "flex items-center justify-between rounded-full px-1 py-1 shadow-lg w-full max-w-sm border-2 relative transition-colors duration-300 overflow-hidden",
               playerColor === Player.BLUE
                 ? "bg-transparent border-player-blue shadow-player-blue/20"
                 : "bg-transparent border-player-red shadow-player-red/20"
@@ -517,14 +517,14 @@ export function HomePage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => setShowSettings(true)} className="cursor-pointer font-medium">
-                      Settings
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleNewGame} className="cursor-pointer font-medium">
                       New Game
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer font-medium">
                       <Link to="/games" className="w-full">My Games</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowSettings(true)} className="cursor-pointer font-medium">
+                      Settings
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
