@@ -156,9 +156,9 @@ const GameBoard = () => {
   return (
     <div className={cn(
       "relative mx-auto flex justify-center transition-all duration-300 w-full",
-      boardSize === 'small' ? "max-w-xl" : // Up to 576px
-        boardSize === 'medium' ? "max-w-4xl" : // Up to 896px
-          "max-w-[80vw] xl:max-w-[1400px]" // Up to 80% viewport width
+      boardSize === 'small' ? "w-[min(30vw,45vh)] min-w-[280px] max-w-[600px]" :
+        boardSize === 'medium' ? "w-[min(75vw,65vh)] min-w-[320px] max-w-[1000px]" :
+          "w-[min(90vw,95vh)] min-w-[340px] max-w-[1400px]"
     )}>
       <svg
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
