@@ -111,7 +111,9 @@ const GameBoard = () => {
     winningPath.map((p) => `${p.row},${p.col}`)
   );
 
-  const hexSize = boardSize === 'small' ? 24 : boardSize === 'large' ? 48 : 36;
+  // Use a constant internal hexSize to preserve stroke width and font size proportions from the old "middle" size.
+  // The actual screen size is controlled by the CSS width of the container.
+  const hexSize = 36;
   const scale = hexSize / 50; // Hexagon component is 100x86.6
   const scaledHexWidth = 100 * scale;
   const scaledHexHeight = 86.6 * scale;
@@ -139,7 +141,12 @@ const GameBoard = () => {
   const viewBoxHeight = boardContentHeight + padding * 2;
 
   return (
-    <div className="relative w-full max-w-xl mx-auto">
+    <div className={cn(
+      "relative mx-auto flex justify-center transition-all duration-300",
+      boardSize === 'small' ? "w-full max-w-xl" :
+        boardSize === 'medium' ? "w-[min(1440px,95vw)]" :
+          "w-[80vw]"
+    )}>
       <svg
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
         className="w-full drop-shadow-lg"
@@ -458,7 +465,7 @@ export function HomePage() {
               <div className="flex-1 flex flex-col items-center justify-between text-center relative z-10 h-full py-0.5">
                 {gameState === 'playing' && (
                   <motion.span
-                    className="text-xl font-bold tracking-tight inline-block leading-[1.1rem]"
+                    className="text-xl font-bold tracking-tight inline-block "
                     animate={shouldWiggle ? { rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1.1, 1.1, 1] } : {}}
                     transition={{ duration: wiggleDuration }}
                   >
