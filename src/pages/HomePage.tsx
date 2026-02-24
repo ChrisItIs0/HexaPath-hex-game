@@ -19,6 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { MoreVertical } from 'lucide-react';
 import { isToday, format } from 'date-fns';
 
@@ -48,6 +55,12 @@ const GameStatus = () => {
   const yourColorClass = playerColor === Player.BLUE ? 'text-player-blue' : 'text-player-red';
 
   if (gameMode === 'online' && gameState === 'playing') {
+    return null;
+  }
+
+  // When waiting for online opponent, we don't show the inline status text anymore
+  // because we show a modal instead.
+  if (gameMode === 'online' && gameState === 'waiting') {
     return null;
   }
 
@@ -440,16 +453,6 @@ export function HomePage() {
         <GameStatus />
         <GameBoard />
 
-        {gameMode === 'online' && gameState === 'waiting' && gameId && shareLink && (
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, type: 'spring' }}
-          >
-            <ShareLink gameId={gameId} shareLink={shareLink} />
-          </motion.div>
-        )}
-
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -542,6 +545,17 @@ export function HomePage() {
             </div>
           )}
         </motion.div>
+
+        {/* Share Modal */}
+        <Dialog open={gameMode === 'online' && gameState === 'waiting' && !!gameId && !!shareLink} onOpenChange={() => { }}>
+          <DialogContent className="sm:max-w-md [&>button]:hidden">
+            <div className="flex justify-center pb-2">
+              {gameId && shareLink && (
+                <ShareLink gameId={gameId} shareLink={shareLink} />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <GameModeSelector

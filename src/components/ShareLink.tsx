@@ -3,6 +3,7 @@ import { Check, Copy, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 interface ShareLinkProps {
   gameId: string;
@@ -53,7 +54,7 @@ export function ShareLink({ gameId, shareLink }: ShareLinkProps) {
           </p>
           <p className="text-2xl font-bold font-mono">{gameId}</p>
         </div>
-        
+
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
             Share Link
@@ -73,13 +74,21 @@ export function ShareLink({ gameId, shareLink }: ShareLinkProps) {
             </Button>
           </div>
         </div>
-        
+
         {navigator.share && (
           <Button onClick={handleShare} className="w-full">
             <Share2 className="h-4 w-4 mr-2" />
             Share
           </Button>
         )}
+        <span className="text-center text-sm text-muted-foreground">Waiting for opponent to join</span>
+        <motion.span
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, times: [0, 0.5, 1] }}
+          className="w-4 ml-1 inline-block text-left"
+        >
+          ...
+        </motion.span>
       </CardContent>
     </Card>
   );
