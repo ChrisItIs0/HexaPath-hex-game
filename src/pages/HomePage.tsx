@@ -142,10 +142,10 @@ const GameBoard = () => {
 
   return (
     <div className={cn(
-      "relative mx-auto flex justify-center transition-all duration-300",
-      boardSize === 'small' ? "w-full max-w-xl" :
-        boardSize === 'medium' ? "w-[min(1440px,95vw)]" :
-          "w-[80vw]"
+      "relative mx-auto flex justify-center transition-all duration-300 w-full",
+      boardSize === 'small' ? "max-w-xl" : // Up to 576px
+        boardSize === 'medium' ? "max-w-4xl" : // Up to 896px
+          "max-w-[80vw] xl:max-w-[1400px]" // Up to 80% viewport width
     )}>
       <svg
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
@@ -402,9 +402,11 @@ export function HomePage() {
     };
   }, [isYourTurn, gameState]);
 
+  // Use `my-auto` on the inner content (instead of `justify-center` on main) 
+  // to avoid clipping the top of the grid when it reaches very large sizes on smaller viewports.
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-5xl mx-auto flex flex-col items-center space-y-6 md:space-y-8">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-[1600px] my-auto mx-auto flex flex-col items-center space-y-6 md:space-y-8">
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
